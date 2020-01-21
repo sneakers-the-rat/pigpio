@@ -4128,7 +4128,7 @@ printf("library started %d.%03d seconds ago", secs, mics/1000);
 D*/
 
 /*F*/
-int gpioTime(unsigned timetype);
+int gpioTimeInt(unsigned timetype);
 /*D
 test
 D*/
