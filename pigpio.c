@@ -2361,7 +2361,7 @@ static int myDoCommand(uintptr_t *p, unsigned bufSize, char *buf)
          break;
 
       case PI_CMD_START_MICROS:
-         res = libStarted.tv_usec;
+         res = libStarted.tv_nsec/1000;
          break;
 
       case PI_CMD_TIMESYNC1:
@@ -2380,7 +2380,7 @@ static int myDoCommand(uintptr_t *p, unsigned bufSize, char *buf)
          res = sysclock_seconds;
          break;
 
-      case pi_cmd_TIMESYNC3:
+      case PI_CMD_TIMESYNC3:
          res = sysclock_micros;
          break;
 
