@@ -2068,8 +2068,8 @@ class pi():
       """
       return _pigpio_command(self.sl, _PI_CMD_TICK, 0, 0)
 
-   def get_current_time(self):
-   		return _pigpio_command(self.sl, _PI_CMD_TIME, 0, 0)
+   def get_current_time(self, time_type):
+   		return _pigpio_command(self.sl, _PI_CMD_TIME, time_type, 0)
 
    def get_hardware_revision(self):
       """

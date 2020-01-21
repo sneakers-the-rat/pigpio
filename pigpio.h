@@ -4127,6 +4127,12 @@ printf("library started %d.%03d seconds ago", secs, mics/1000);
 ...
 D*/
 
+/*F*/
+int gpioTime(unsigned timetype);
+/*D
+test
+D*/
+
 
 /*F*/
 int gpioSleep(unsigned timetype, int seconds, int micros);

@@ -13338,14 +13338,14 @@ int gpioTime(unsigned timetype, int *seconds, int *micros)
    return 0;
 }
 
-int gpioTimeInt(unsigned timetype, int *sec_micros, int *micros)
+int gpioTimeInt(unsigned timetype)
 {
    // GPIO time that returns a single int
    struct timespec ts;
    int timestamp;
 
-   DBG(DBG_USER, "timetype=%d &seconds=%08"PRIXPTR" &micros=%08"PRIXPTR,
-      timetype, (uintptr_t)seconds, (uintptr_t)micros);
+   // DBG(DBG_USER, "timetype=%d &seconds=%08"PRIXPTR" &micros=%08"PRIXPTR,
+   //    timetype, (uintptr_t)seconds, (uintptr_t)micros);
 
    CHECK_INITED;
 
