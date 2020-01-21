@@ -2085,18 +2085,21 @@ class pi():
          timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
       return timestamp
 
-   def get_sync_time(self, callfirst=0):
+   def get_sync_time(self, callfirst=0, isoformat=False):
       """
       Returns a matched pair of ticks and times for converting ticks and time
       
       callfirst := 0 if call gpioTick() first, 1 call gpioTime() first
+      isoformat := if true, return isoformatted time string, otherwise return floating point unix time
       """
       with time_lock:
          ticks = _pigpio_command(self.sl, _PI_CMD_TIMESYNC1, callfirst, 0)
          seconds =  _pigpio_command(self.sl, _PI_CMD_TIMESYNC2, 0, 0)
          micros = _pigpio_command(self.sl, _PI_CMD_TIMESYNC3, 0, 0)
 
-      timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
+      timestamp = seconds+float(micros)/1000000.
+      if isoformat:
+         timestamp = datetime.fromtimestamp(timestamp).isoformat()
       return (ticks, timestamp)
 
 
@@ -5100,7 +5103,8 @@ class pi():
    def __init__(self,
                 host = os.getenv("PIGPIO_ADDR", 'localhost'),
                 port = os.getenv("PIGPIO_PORT", 8888),
-                show_errors = True):
+                show_errors = True,
+                sync_ticks = True):
       """
       Grants access to a Pi's GPIO.
 
@@ -5112,6 +5116,8 @@ class pi():
              The default is 8888 unless overridden by the PIGPIO_PORT
              environment variable.  The pigpio daemon must have been
              started with the same port number.
+
+      sync_ticks := Whether to synchronize tick number with system time and return timetamps rather than ticks in callbacks
 
       This connects to the pigpio daemon and reserves resources
       to be used for sending commands and receiving notifications.
@@ -5142,6 +5148,9 @@ class pi():
 
       self._host = host
       self._port = port
+
+      self.sync_ticks = sync_ticks
+      self._last_synced_tick = 0
 
       try:
          self.sl.s = socket.create_connection((host, port), None)
@@ -5185,6 +5194,31 @@ class pi():
             else:
                 print(_except_3)
             print(_except_z)
+
+      else:
+         if self.sync_ticks:
+            self.synchronize()
+
+   def synchronize(self):
+      self._last_synced_tick, self._last_synced_ts = self.get_sync_time()
+
+   def ticks_to_timestamp(self, ticks, isoformat=True):
+      if ticks < self._last_synced_tick:
+         self.synchronize()
+
+
+
+      # time is 
+      # (new_tick - sync_tick) + sync_timestamp
+      # normalized to unix seconds
+      timestamp = (ticks/1000000.)-(self._last_synced_tick/1000000.)+self._last_synced_ts
+      if isoformat:
+         timestamp = datetime.fromtimestamp(timestamp).isoformat()
+
+
+      return 
+
+
 
    def __repr__(self):
       return "<pipio.pi host={} port={}>".format(self._host, self._port)
