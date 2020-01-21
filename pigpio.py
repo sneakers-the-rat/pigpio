@@ -5199,19 +5199,28 @@ class pi():
          if self.sync_ticks:
             self.synchronize()
 
-   def synchronize(self):
-      self._last_synced_tick, self._last_synced_ts = self.get_sync_time()
+   def synchronize(self, n_iters=5):
+      offsets = []
+
+      for i in range(n_iters):
+         synctick_forward,  syncts_forward  = self.get_sync_time(callfirst=0)
+         synctick_backward, syncts_backward = self.get_sync_time(callfirst=1)
+
+         offset_forward = syncts_forward-(synctick_forward/1000000.)
+         offset_backward = syncts_backward-(synctick_backward/1000000.)
+         offsets.append((offset_forward+offset_backward)/2.)
+      self._last_synced_tick = synctick_backward
+      self._last_synced_ts   = syncts_backward
+      self._sync_offset = sum(offsets)/len(offsets)
 
    def ticks_to_timestamp(self, ticks, isoformat=True):
       if ticks < self._last_synced_tick:
          self.synchronize()
 
-
-
       # time is 
       # (new_tick - sync_tick) + sync_timestamp
       # normalized to unix seconds
-      timestamp = (ticks/1000000.)-(self._last_synced_tick/1000000.)+self._last_synced_ts
+      timestamp = (ticks/1000000.)+self._sync_offset
       if isoformat:
          timestamp = datetime.fromtimestamp(timestamp).isoformat()
 
