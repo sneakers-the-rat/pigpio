@@ -2072,11 +2072,11 @@ class pi():
       return _pigpio_command(self.sl, _PI_CMD_TICK, 0, 0)
 
    def get_current_time(self, time_type):
-	  with time_lock:
-		 seconds =  _pigpio_command(self.sl, _PI_CMD_TIME1, time_type, 0)
-		 micros = _pigpio_command(self.sl, _PI_CMD_TIME2, 0, 0)
-	     timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
-	  return timestamp
+      with time_lock:
+         seconds =  _pigpio_command(self.sl, _PI_CMD_TIME1, time_type, 0)
+         micros = _pigpio_command(self.sl, _PI_CMD_TIME2, 0, 0)
+         timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
+      return timestamp
 
 
    def get_hardware_revision(self):
