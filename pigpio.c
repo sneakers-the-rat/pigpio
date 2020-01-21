@@ -2345,7 +2345,7 @@ static int myDoCommand(uintptr_t *p, unsigned bufSize, char *buf)
       case PI_CMD_TICK: res = gpioTick(); break;
 
       case PI_CMD_TIME1: 
-         gpioTime(p[1], sysclock_seconds, sysclock_micros); 
+         gpioTime(p[1], &sysclock_seconds, &sysclock_micros); 
          res = sysclock_seconds;
          break;
 
