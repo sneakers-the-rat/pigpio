@@ -580,7 +580,14 @@ _PI_CMD_EVT  =116
 _PI_CMD_PROCU=117
 
 _PI_CMD_TIME1 =118
-_PI_CMD_TIME2 =118
+_PI_CMD_TIME2 =119
+
+_PI_CMD_START_SEC = 120
+_PI_CMD_START_MICROS = 121
+
+_PI_CMD_TIMESYNC1 = 122
+_PI_CMD_TIMESYNC2 = 123
+_PI_CMD_TIMESYNC3 = 124
 
 
 
@@ -2077,6 +2084,21 @@ class pi():
          micros = _pigpio_command(self.sl, _PI_CMD_TIME2, 0, 0)
          timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
       return timestamp
+
+   def get_sync_time(self, callfirst=0):
+      """
+      Returns a matched pair of ticks and times for converting ticks and time
+      
+      callfirst := 0 if call gpioTick() first, 1 call gpioTime() first
+      """
+      with time_lock:
+         ticks = _pigpio_command(self.sl, _PI_CMD_TIMESYNC1, callfirst, 0)
+         seconds =  _pigpio_command(self.sl, _PI_CMD_TIMESYNC2, 0, 0)
+         micros = _pigpio_command(self.sl, _PI_CMD_TIMESYNC3, 0, 0)
+
+      timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
+      return (ticks, timestamp)
+
 
 
    def get_hardware_revision(self):

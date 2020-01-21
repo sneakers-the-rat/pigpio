@@ -1232,8 +1232,11 @@ static int libInitialised = 0;
 /* initialise every gpioInitialise */
 
 static struct timespec libStarted;
+
+// vars to synchronize timestamps with python
 static int sysclock_seconds;
 static int sysclock_micros;
+static int sysclock_ticks;
 
 static uint32_t sockNetAddr[MAX_CONNECT_ADDRESSES];
 
@@ -2351,6 +2354,34 @@ static int myDoCommand(uintptr_t *p, unsigned bufSize, char *buf)
 
       case PI_CMD_TIME2: 
          res = sysclock_micros; 
+         break;
+
+      case PI_CMD_START_SEC:
+         res = libStarted.tv_sec;
+         break;
+
+      case PI_CMD_START_MICROS:
+         res = libStarted.tv_usec;
+         break;
+
+      case PI_CMD_TIMESYNC1:
+         // get ticks at the same time as we get time
+         if (p[1] == 0) {
+            sysclock_ticks = gpioTick();
+            gpioTime(PI_TIME_ABSOLUTE, &sysclock_seconds, &sysclock_micros);
+         } else if (p[1] == 1){
+            gpioTime(PI_TIME_ABSOLUTE, &sysclock_seconds, &sysclock_micros);
+            sysclock_ticks = gpioTick();
+         }
+         res = sysclock_ticks;
+         break;
+
+      case PI_CMD_TIMESYNC2:
+         res = sysclock_seconds;
+         break;
+
+      case pi_cmd_TIMESYNC3:
+         res = sysclock_micros;
          break;
 
       case PI_CMD_TRIG:
@@ -5929,6 +5960,7 @@ static void alertEmit(
                      report[emit].seqno = seqno;
                      report[emit].flags = 0;
                      report[emit].tick  = sample[d].tick;
+                     // TODO ^^
                      report[emit].level = sample[d].level;
 
                      oldLevel = newLevel;
@@ -13346,6 +13378,8 @@ int gpioTime(unsigned timetype, int *seconds, int *micros)
 
    return 0;
 }
+
+
 
 int gpioTimeInt(unsigned timetype)
 {
