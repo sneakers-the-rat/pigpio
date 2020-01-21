@@ -2342,6 +2342,8 @@ static int myDoCommand(uintptr_t *p, unsigned bufSize, char *buf)
 
       case PI_CMD_TICK: res = gpioTick(); break;
 
+      case PI_CMD_TIME: res = gpioTimeInt(); break;
+
       case PI_CMD_TRIG:
          if (myPermit(p[1]))
          {
@@ -13334,6 +13336,37 @@ int gpioTime(unsigned timetype, int *seconds, int *micros)
    }
 
    return 0;
+}
+
+int gpioTimeInt(unsigned timetype, int *sec_micros, int *micros)
+{
+   // GPIO time that returns a single int
+   struct timespec ts;
+   int timestamp;
+
+   DBG(DBG_USER, "timetype=%d &seconds=%08"PRIXPTR" &micros=%08"PRIXPTR,
+      timetype, (uintptr_t)seconds, (uintptr_t)micros);
+
+   CHECK_INITED;
+
+   if (timetype > PI_TIME_ABSOLUTE)
+      SOFT_ERROR(PI_BAD_TIMETYPE, "bad timetype (%d)", timetype);
+
+   if (timetype == PI_TIME_ABSOLUTE)
+   {
+      clock_gettime(CLOCK_REALTIME, &ts);
+      timestamp = (ts.tv_sec*1000000)+(ts.tv_nsec/1000);
+   }
+   else
+   {
+      clock_gettime(CLOCK_REALTIME, &ts);
+
+      TIMER_SUB(&ts, &libStarted, &ts);
+
+      timestamp = (ts.tv_sec*1000000)+(ts.tv_nsec/1000);
+   }
+
+   return timestamp;
 }
 
 

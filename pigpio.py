@@ -329,6 +329,7 @@ import time
 import threading
 import os
 import atexit
+from datetime import datetime
 
 VERSION = "1.45"
 
@@ -376,6 +377,10 @@ PI_SCRIPT_HALTED =1
 PI_SCRIPT_RUNNING=2
 PI_SCRIPT_WAITING=3
 PI_SCRIPT_FAILED =4
+
+# time types for gpioTime and gpioTimeInt
+PI_TIME_RELATIVE = 0
+PI_TIME_ABSOLUTE = 1
 
 # notification flags
 
@@ -571,6 +576,10 @@ _PI_CMD_EVM  =115
 _PI_CMD_EVT  =116
 
 _PI_CMD_PROCU=117
+
+_PI_CMD_TIME =118
+
+
 
 # pigpio error numbers
 
@@ -2058,6 +2067,9 @@ class pi():
       ...
       """
       return _pigpio_command(self.sl, _PI_CMD_TICK, 0, 0)
+
+   def get_current_time(self):
+   		return _pigpio_command(self.sl, _PI_CMD_TIME, 0, 0)
 
    def get_hardware_revision(self):
       """
