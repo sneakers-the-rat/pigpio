@@ -331,6 +331,8 @@ import os
 import atexit
 from datetime import datetime
 
+time_lock = threading.Lock()
+
 VERSION = "1.45"
 
 exceptions = True
@@ -577,7 +579,8 @@ _PI_CMD_EVT  =116
 
 _PI_CMD_PROCU=117
 
-_PI_CMD_TIME =118
+_PI_CMD_TIME1 =118
+_PI_CMD_TIME2 =118
 
 
 
@@ -2069,7 +2072,12 @@ class pi():
       return _pigpio_command(self.sl, _PI_CMD_TICK, 0, 0)
 
    def get_current_time(self, time_type):
-   		return _pigpio_command(self.sl, _PI_CMD_TIME, time_type, 0)
+	  with time_lock:
+		 seconds =  _pigpio_command(self.sl, _PI_CMD_TIME1, time_type, 0)
+		 micros = _pigpio_command(self.sl, _PI_CMD_TIME2, 0, 0)
+	     timestamp = datetime.fromtimestamp(seconds+float(micros)/1000000.).isoformat()
+	  return timestamp
+
 
    def get_hardware_revision(self):
       """

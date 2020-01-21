@@ -1232,6 +1232,7 @@ static int libInitialised = 0;
 /* initialise every gpioInitialise */
 
 static struct timespec libStarted;
+static int sysclock_seconds sysclock_micros;
 
 static uint32_t sockNetAddr[MAX_CONNECT_ADDRESSES];
 
@@ -2342,7 +2343,14 @@ static int myDoCommand(uintptr_t *p, unsigned bufSize, char *buf)
 
       case PI_CMD_TICK: res = gpioTick(); break;
 
-      case PI_CMD_TIME: res = gpioTimeInt(p[1]); break;
+      case PI_CMD_TIME1: 
+         gpioTime(p[1], sysclock_seconds, sysclock_micros); 
+         res = sysclock_seconds;
+         break;
+
+      case PI_CMD_TIME2: 
+         res = sysclock_micros; 
+         break;
 
       case PI_CMD_TRIG:
          if (myPermit(p[1]))

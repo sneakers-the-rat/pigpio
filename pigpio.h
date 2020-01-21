@@ -6262,7 +6262,8 @@ PARAMS*/
 
 #define PI_CMD_PROCU 117
 
-#define PI_CMD_TIME  118
+#define PI_CMD_TIME1  118
+#define PI_CMD_TIME2  119
 
 /*DEF_E*/
 
