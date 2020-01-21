@@ -1232,7 +1232,8 @@ static int libInitialised = 0;
 /* initialise every gpioInitialise */
 
 static struct timespec libStarted;
-static int sysclock_seconds sysclock_micros;
+static int sysclock_seconds;
+static int sysclock_micros;
 
 static uint32_t sockNetAddr[MAX_CONNECT_ADDRESSES];
 
