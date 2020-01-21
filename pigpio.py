@@ -1218,6 +1218,9 @@ class _callback_thread(threading.Thread):
             offset += MSG_SIZ
             seq, flags, tick, level = (struct.unpack('HHII', msgbuf))
 
+            if self.synchronize:
+               tick = self.ticks_to_timestamp(tick)
+
             if flags == 0:
                changed = level ^ lastLevel
                lastLevel = level
