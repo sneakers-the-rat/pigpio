@@ -1136,7 +1136,7 @@ class _callback_ADT:
 
 class _callback_thread(threading.Thread):
    """A class to encapsulate pigpio notification callbacks."""
-   def __init__(self, control, host, port):
+   def __init__(self, control, host, port, sync_offset=None):
       """Initialises notifications."""
       threading.Thread.__init__(self)
       self.control = control
@@ -1151,6 +1151,7 @@ class _callback_thread(threading.Thread):
       self.lastLevel = _pigpio_command(self.sl,  _PI_CMD_BR1, 0, 0)
       self.handle = _u2i(_pigpio_command(self.sl, _PI_CMD_NOIB, 0, 0))
       self.go = True
+      self.synchronize = sync_offset
       self.start()
 
    def stop(self):
@@ -1198,6 +1199,11 @@ class _callback_thread(threading.Thread):
             self.event_bits = new_event_bits
             _pigpio_command(
                self.control, _PI_CMD_EVM, self.handle, self.event_bits)
+
+   def ticks_to_timestamp(self, tick, isoformat=True):
+      timestamp = (tick/1000000.)+self.synchronize
+	  if isoformat:
+	     timestamp = datetime.fromtimestamp(timestamp).isoformat()
 
    def run(self):
       """Runs the notification thread."""
@@ -5154,6 +5160,8 @@ class pi():
 
       self.sync_ticks = sync_ticks
       self._last_synced_tick = 0
+      if self.sync_ticks:
+      	self.synchronize()
 
       try:
          self.sl.s = socket.create_connection((host, port), None)
@@ -5161,8 +5169,12 @@ class pi():
          # Disable the Nagle algorithm.
          self.sl.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-         self._notify = _callback_thread(self.sl, host, port)
+         if self.sync_ticks:
+      	    self.synchronize()
 
+            self._notify = _callback_thread(self.sl, host, port, self._sync_offset)
+         else:
+         	self._notify = _callback_thread(self.sl, host, port, self._sync_offset)
       except socket.error:
          exception = 1
 
