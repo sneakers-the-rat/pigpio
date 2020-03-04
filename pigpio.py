@@ -1202,8 +1202,8 @@ class _callback_thread(threading.Thread):
 
    def ticks_to_timestamp(self, tick, isoformat=True):
       timestamp = (tick/1000000.)+self.synchronize
-	  if isoformat:
-	     timestamp = datetime.fromtimestamp(timestamp).isoformat()
+      if isoformat:
+         timestamp = datetime.fromtimestamp(timestamp).isoformat()
 
    def run(self):
       """Runs the notification thread."""
@@ -5161,7 +5161,7 @@ class pi():
       self.sync_ticks = sync_ticks
       self._last_synced_tick = 0
       if self.sync_ticks:
-      	self.synchronize()
+         self.synchronize()
 
       try:
          self.sl.s = socket.create_connection((host, port), None)
@@ -5170,11 +5170,11 @@ class pi():
          self.sl.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
          if self.sync_ticks:
-      	    self.synchronize()
+             self.synchronize()
 
             self._notify = _callback_thread(self.sl, host, port, self._sync_offset)
          else:
-         	self._notify = _callback_thread(self.sl, host, port, self._sync_offset)
+            self._notify = _callback_thread(self.sl, host, port, self._sync_offset)
       except socket.error:
          exception = 1
 
