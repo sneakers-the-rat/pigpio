@@ -5160,8 +5160,6 @@ class pi():
 
       self.sync_ticks = sync_ticks
       self._last_synced_tick = 0
-      if self.sync_ticks:
-         self.synchronize()
 
       try:
          self.sl.s = socket.create_connection((host, port), None)
