@@ -5170,7 +5170,7 @@ class pi():
          self.sl.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
          if self.sync_ticks:
-             self.synchronize()
+            self.synchronize()
 
             self._notify = _callback_thread(self.sl, host, port, self._sync_offset)
          else:
