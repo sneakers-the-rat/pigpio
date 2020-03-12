@@ -68,7 +68,7 @@ string(CONCAT DESTDIR_CGI ${DESTDIR} "/opt/pigpio/cgi")
 
 # install
 install(DIRECTORY
-	DESTINATION opt/pigpio/cgi
+	DESTINATION autopilot/external/pigpio/cgi
 	PATTERN ""
 	PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
 		GROUP_READ GROUP_EXECUTE
@@ -76,13 +76,13 @@ install(DIRECTORY
 )
 
 install(TARGETS pigpio pigpiod_if pigpiod_if2 pig2vcd pigpiod pigs
-	LIBRARY DESTINATION usr/local/lib
-	RUNTIME DESTINATION usr/local/bin
-	ARCHIVE DESTINATION usr/local/lib
+	LIBRARY DESTINATION autopilot/external/pigpio/lib
+	RUNTIME DESTINATION autopilot/external/pigpio/bin
+	ARCHIVE DESTINATION autopilot/external/pigpio/lib
 )
 
 install(FILES pigpio.h pigpiod_if.h pigpiod_if2.h
-	DESTINATION usr/local/include
+	DESTINATION autopilot/external/pigpio/include
 	PERMISSIONS OWNER_READ OWNER_WRITE
 		GROUP_READ
 		WORLD_READ
@@ -90,7 +90,7 @@ install(FILES pigpio.h pigpiod_if.h pigpiod_if2.h
 
 file(GLOB man_1_SRC "*.1")
 install(FILES ${man_1_SRC}
-	DESTINATION usr/local/man/man1
+	DESTINATION autopilot/external/pigpio/man/man1
 	PERMISSIONS OWNER_READ OWNER_WRITE
 		GROUP_READ
 		WORLD_READ
@@ -98,7 +98,7 @@ install(FILES ${man_1_SRC}
 
 file(GLOB man_3_SRC "*.3")
 install(FILES ${man_3_SRC}
-	DESTINATION usr/local/man/man3
+	DESTINATION autopilot/external/pigpio/man/man3
 	PERMISSIONS OWNER_READ OWNER_WRITE
 		GROUP_READ
 		WORLD_READ
@@ -118,28 +118,28 @@ install(CODE "execute_process(COMMAND ldconfig)")
 
 # uninstall
 if(PYTHON2_FOUND)
-	set(PY2_CMD python2 ${setup_SRC} install --record /tmp/pigpio > /dev/null)
-	set(PY2_CMD ${PY2_CMD} && xargs rm -f < /tmp/pigpio > /dev/null)
+	set(PY2_CMD python2 ${setup_SRC} install --record ../../autopilot/external/pigpio/tmp/pigpio > /dev/null)
+	set(PY2_CMD ${PY2_CMD} && xargs rm -f < ../../autopilot/external/pigpio/tmp/pigpio > /dev/null)
 endif()
 
 if(PYTHON3_FOUND)
-	set(PY3_CMD python3 ${setup_SRC} install --record /tmp/pigpio > /dev/null)
-	set(PY3_CMD ${PY3_CMD} && xargs rm -f < /tmp/pigpio > /dev/null)
+	set(PY3_CMD python3 ${setup_SRC} install --record ../../autopilot/external/pigpio/tmp/pigpio > /dev/null)
+	set(PY3_CMD ${PY3_CMD} && xargs rm -f < ../../autopilot/external/pigpio/tmp/pigpio > /dev/null)
 endif()
 
 add_custom_target(uninstall
-	COMMAND rm -f usr/local/include/pigpio.h
-	COMMAND rm -f usr/local/include/pigpiod_if.h
-	COMMAND rm -f usr/local/include/pigpiod_if2.h
-	COMMAND rm -f usr/local/lib/libpigpio.so
-	COMMAND rm -f usr/local/lib/libpigpiod_if.so
-	COMMAND rm -f usr/local/lib/libpigpiod_if2.so
-	COMMAND rm -f usr/local/bin/pig2vcd
-	COMMAND rm -f usr/local/bin/pigpiod
-	COMMAND rm -f usr/local/bin/pigs
+	COMMAND rm -f autopilot/external/pigpio/include/pigpio.h
+	COMMAND rm -f autopilot/external/pigpio/include/pigpiod_if.h
+	COMMAND rm -f autopilot/external/pigpio/include/pigpiod_if2.h
+	COMMAND rm -f autopilot/external/pigpio/lib/libpigpio.so
+	COMMAND rm -f autopilot/external/pigpio/lib/libpigpiod_if.so
+	COMMAND rm -f autopilot/external/pigpio/libpigpiod_if2.so
+	COMMAND rm -f autopilot/external/pigpio/bin/pig2vcd
+	COMMAND rm -f autopilot/external/pigpio/bin/pigpiod
+	COMMAND rm -f autopilot/external/pigpio/bin/pigs
 	COMMAND cd ${CMAKE_SOURCE_DIR} && ${PY2_CMD}
 	COMMAND cd ${CMAKE_SOURCE_DIR} && ${PY3_CMD}
-	COMMAND rm -f usr/local/man/man1/pig*.1
-	COMMAND rm -f usr/local/man/man3/pig*.3
+	COMMAND rm -f autopilot/external/pigpio/man/man1/pig*.1
+	COMMAND rm -f autopilot/external/pigpio/man/man3/pig*.3
 	COMMAND ldconfig
 )
