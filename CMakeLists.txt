@@ -77,7 +77,7 @@ install(DIRECTORY
 
 install(TARGETS pigpio pigpiod_if pigpiod_if2 pig2vcd pigpiod pigs
 	LIBRARY DESTINATION autopilot/external/pigpio/lib
-	RUNTIME DESTINATION autopilot/external/pigpio/bin
+	RUNTIME DESTINATION autopilot/external/pigpio
 	ARCHIVE DESTINATION autopilot/external/pigpio/lib
 )
 
@@ -134,9 +134,9 @@ add_custom_target(uninstall
 	COMMAND rm -f autopilot/external/pigpio/lib/libpigpio.so
 	COMMAND rm -f autopilot/external/pigpio/lib/libpigpiod_if.so
 	COMMAND rm -f autopilot/external/pigpio/libpigpiod_if2.so
-	COMMAND rm -f autopilot/external/pigpio/bin/pig2vcd
-	COMMAND rm -f autopilot/external/pigpio/bin/pigpiod
-	COMMAND rm -f autopilot/external/pigpio/bin/pigs
+	COMMAND rm -f autopilot/external/pigpio/pig2vcd
+	COMMAND rm -f autopilot/external/pigpio/pigpiod
+	COMMAND rm -f autopilot/external/pigpio/pigs
 	COMMAND cd ${CMAKE_SOURCE_DIR} && ${PY2_CMD}
 	COMMAND cd ${CMAKE_SOURCE_DIR} && ${PY3_CMD}
 	COMMAND rm -f autopilot/external/pigpio/man/man1/pig*.1
