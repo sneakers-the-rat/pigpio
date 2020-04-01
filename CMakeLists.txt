@@ -107,11 +107,11 @@ install(FILES ${man_3_SRC}
 file(GLOB setup_SRC "setup.py")
 find_program(PYTHON2_FOUND python2)
 if(PYTHON2_FOUND)
-	install(CODE "execute_process(COMMAND cd ${CMAKE_SOURCE_DIR} && python2 ${setup_SRC} install)")
+	install(CODE "execute_process(COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR} && python2 ${setup_SRC} install)")
 endif()
 find_program(PYTHON3_FOUND python3)
 if(PYTHON3_FOUND)
-	install(CODE "execute_process(COMMAND cd ${CMAKE_SOURCE_DIR} && python3 ${setup_SRC} install)")
+	install(CODE "execute_process(COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR} && python3 ${setup_SRC} install)")
 endif()
 
 install(CODE "execute_process(COMMAND ldconfig)")
