@@ -30,7 +30,7 @@ For more information, please refer to <http://unlicense.org/>
 
 #include "pigpio.h"
 
-#define PIGPIOD_IF2_VERSION 16
+#define PIGPIOD_IF2_VERSION 17
 
 /*TEXT
 
@@ -302,6 +302,7 @@ wave_add_generic           Adds a series of pulses to the waveform
 wave_add_serial            Adds serial data to the waveform
 
 wave_create                Creates a waveform from added data
+wave_create_and_pad        Creates a waveform of fixed size from added data
 wave_delete                Deletes one or more waveforms
 
 wave_send_once             Transmits a waveform once
@@ -1373,6 +1374,49 @@ D*/
 
 
 /*F*/
+int wave_create_and_pad(int pi, int percent);
+/*D
+This function creates a waveform like [*wave_create*] but pads the consumed
+resources. Where percent gives the percentage of the resources to use (in terms
+of the theoretical maximum, not the current amount free). This allows the reuse 
+of deleted waves while a transmission is active.
+
+. .
+pi: >=0 (as returned by [*pigpio_start*]).
+percent: 0-100, size of waveform as percentage of maximum available.
+. .
+
+The data provided by the [*wave_add_**] functions are consumed by this
+function.
+
+As many waveforms may be created as there is space available. The
+wave id is passed to [*wave_send_**] to specify the waveform to transmit.
+
+A usage would be the creation of two waves where one is filled while the other
+is being transmitted. Each wave is assigned 50% of the resources.
+This buffer structure allows the transmission of infinite wave sequences.
+
+Normal usage:
+
+Step 1. [*wave_clear*] to clear all waveforms and added data.
+
+Step 2. [*wave_add_**] calls to supply the waveform data.
+
+Step 3. [*wave_create_and_pad*] to create a waveform of uniform size.
+
+Step 4. [*wave_send_**] with the id of the waveform to transmit.
+
+Repeat steps 2-4 as needed.
+
+Step 5. Any wave id can now be deleted and another wave of the same size
+        can be created in its place.
+
+Returns the new waveform id if OK, otherwise PI_EMPTY_WAVEFORM,
+PI_NO_WAVEFORM_ID, PI_TOO_MANY_CBS, or PI_TOO_MANY_OOL.
+D*/
+
+
+/*F*/
 int wave_delete(int pi, unsigned wave_id);
 /*D
 This function deletes the waveform with id wave_id.
@@ -1565,7 +1609,7 @@ D*/
 int wave_tx_at(int pi);
 /*D
 This function returns the id of the waveform currently being
-transmitted.
+transmitted by [*wave_send**].  Chained waves are not supported.
 
 . .
 pi: >=0 (as returned by [*pigpio_start*]).
@@ -3352,6 +3396,37 @@ tick        32 bit   The number of microseconds since boot
                      WARNING: this wraps around from
                      4294967295 to 0 roughly every 72 minutes
 . .
+
+The GPIO are sampled at a rate set when the pigpio daemon
+is started (default 5 us).
+
+The number of samples per second is given in the following table.
+
+. .
+              samples
+              per sec
+
+         1  1,000,000
+         2    500,000
+sample   4    250,000
+rate     5    200,000
+(us)     8    125,000
+        10    100,000
+. .
+
+GPIO level changes shorter than the sample rate may be missed.
+
+The daemon software which generates the callbacks is triggered
+1000 times per second.  The callbacks will be called once per
+level change since the last time they were called.
+i.e. The callbacks will get all level changes but there will
+be a latency.
+
+If you want to track the level of more than one GPIO do so by
+maintaining the state in the callback.  Do not use [*gpio_read*].
+Remember the event that triggered the callback may have
+happened several milliseconds before and the GPIO may have
+changed level many times since then.
 D*/
 
 /*F*/
@@ -3442,9 +3517,6 @@ The output process is simple. You simply append data to the FIFO
 buffer on the chip.  This works like a queue, you add data to the
 queue and the master removes it.
 
-This function is not available on the BCM2711 (e.g. as
-used in the Pi4B).
-
 I can't get SPI to work properly.  I tried with a
 control word of 0x303 and swapped MISO and MOSI.
 
@@ -3486,11 +3558,19 @@ less than requested if the FIFO already contained untransmitted data).
 Note that the control word sets the BSC mode.  The BSC will stay in
 that mode until a different control word is sent.
 
-The BSC peripheral uses GPIO 18 (SDA) and 19 (SCL) in I2C mode
-and GPIO 18 (MOSI), 19 (SCLK), 20 (MISO), and 21 (CE) in SPI mode.  You
-need to swap MISO/MOSI between master and slave.
+GPIO used for models other than those based on the BCM2711.
 
-When a zero control word is received GPIO 18-21 will be reset
+    @ SDA @ SCL @ MOSI @ SCLK @ MISO @ CE
+I2C @ 18  @ 19  @ -    @ -    @ -    @ -
+SPI @ -   @ -   @ 18   @ 19   @ 20   @ 21
+
+GPIO used for models based on the BCM2711 (e.g. the Pi4B).
+
+    @ SDA @ SCL @ MOSI @ SCLK @ MISO @ CE
+I2C @ 10  @ 11  @ -    @ -    @ -    @ -
+SPI @ -   @ -   @ 10   @ 11   @ 9    @ 8
+
+When a zero control word is received the used GPIO will be reset
 to INPUT mode.
 
 control consists of the following bits.
@@ -3598,8 +3678,7 @@ If there was an error the status will be less than zero
 (and will contain the error code).
 
 Note that an i2c_address of 0 may be used to close
-the BSC device and reassign the used GPIO (18/19)
-as inputs.
+the BSC device and reassign the used GPIO as inputs.
 D*/
 
 /*F*/
@@ -4047,6 +4126,9 @@ high and low levels.
 
 *param::
 An array of script parameters.
+
+percent:: 0-100
+The size of waveform as percentage of maximum available.
 
 pi::
 An integer defining a connected Pi.  The value is returned by

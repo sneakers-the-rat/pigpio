@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 For more information, please refer to <http://unlicense.org/>
 */
 
-/* PIGPIOD_IF2_VERSION 16 */
+/* PIGPIOD_IF2_VERSION 17 */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -953,6 +953,9 @@ int wave_add_serial(
 int wave_create(int pi)
    {return pigpio_command(pi, PI_CMD_WVCRE, 0, 0, 1);}
 
+int wave_create_and_pad(int pi, int percent)
+   {return pigpio_command(pi, PI_CMD_WVCAP, percent, 0, 1);}
+
 int wave_delete(int pi, unsigned wave_id)
    {return pigpio_command(pi, PI_CMD_WVDEL, wave_id, 0, 1);}
 
@@ -1285,7 +1288,7 @@ int i2c_process_call(int pi, unsigned handle, unsigned reg, uint32_t val)
    ext[0].ptr = &val;
 
    return pigpio_command_ext
-      (pi, PI_CMD_I2CPK, handle, reg, 4, 1, ext, 1);
+      (pi, PI_CMD_I2CPC, handle, reg, 4, 1, ext, 1);
 }
 
 int i2c_write_block_data(
