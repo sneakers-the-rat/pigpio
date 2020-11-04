@@ -330,6 +330,7 @@ import time
 import threading
 import os
 import atexit
+import warnings
 from datetime import datetime
 
 time_lock = threading.Lock()
@@ -1205,7 +1206,16 @@ class _callback_thread(threading.Thread):
    def ticks_to_timestamp(self, tick, isoformat=True):
       timestamp = (tick/1000000.)+self.synchronize
       if isoformat:
-         timestamp = datetime.fromtimestamp(timestamp).isoformat()
+         try:
+            timestamp = datetime.fromtimestamp(timestamp).isoformat()
+
+         except OverflowError:
+            warnings.warn(f'Couldnt convert ticks to timestamp, returning to ticks mode: \ntick: {tick}\nsync_offset: {self.synchronize}')
+            self.synchronize = None
+            return tick
+      
+      return timestamp
+
 
    def run(self):
       """Runs the notification thread."""
