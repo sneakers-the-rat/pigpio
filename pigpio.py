@@ -334,7 +334,7 @@ from datetime import datetime
 
 time_lock = threading.Lock()
 
-VERSION = "1.46"
+VERSION = "1.78"  # sync minor number to pigpio library version
 
 exceptions = True
 
