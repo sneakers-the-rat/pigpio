@@ -831,7 +831,7 @@ typedef void *(gpioThreadFunc_t) (void *);
 #define PI_MIN_MS 10
 #define PI_MAX_MS 60000
 
-#define PI_MAX_SCRIPTS       32
+#define PI_MAX_SCRIPTS      256
 
 #define PI_MAX_SCRIPT_TAGS   50
 #define PI_MAX_SCRIPT_VARS  150

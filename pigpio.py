@@ -1213,7 +1213,7 @@ class _callback_thread(threading.Thread):
             warnings.warn(f'Couldnt convert ticks to timestamp, returning to ticks mode: \ntick: {tick}\nsync_offset: {self.synchronize}')
             self.synchronize = None
             return tick
-      
+
       return timestamp
 
 
